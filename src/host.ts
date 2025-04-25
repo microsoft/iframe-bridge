@@ -7,7 +7,7 @@ export function initProxy(opts: BridgeOptions = {}) {
 
   function emit(event: string, args: any[]) {
     frames.forEach((f, origin) => {
-      f.postMessage({ type: Bridge.EVENT, event, args }, origin);
+      f.postMessage({ type: Bridge.EVENT, event, args, scope }, origin);
     });
   }
 
@@ -34,7 +34,7 @@ export function initProxy(opts: BridgeOptions = {}) {
     const { type, mid, method, args } = data;
     if (type === Bridge.CALL_METHOD && mid) {
       onCall(methods[method], args)
-        .then(([res, err]) => frame.postMessage({ type: Bridge.RESPONSE, mid, res, err }, origin));
+        .then(([res, err]) => frame.postMessage({ type: Bridge.RESPONSE, mid, res, err, scope }, origin));
     }
   });
 

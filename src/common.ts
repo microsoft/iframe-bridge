@@ -21,6 +21,7 @@ export enum Bridge {
   // error types
   CALL_METHOD_FAILED = '__call_method_failed__',
   NO_METHOD = '__no_method__',
+  TIME_OUT = '__time_out__',
 }
 
 export function uuid() {
@@ -32,6 +33,6 @@ export function delayExecute(fn: Function) {
   let timer = 0;
   return (wait: number) => {
     clearTimeout(timer);
-    setTimeout(fn, wait);
+    timer = setTimeout(fn, wait);
   };
 }

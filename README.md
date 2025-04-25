@@ -1,3 +1,8 @@
+![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
+![lang](https://img.shields.io/badge/lang-typescript-red.svg)
+
+---
+
 # Why this ?
 Using postmessage directly to communicate with iframe, the code is very bad
 * Lack of type constraints
@@ -52,6 +57,8 @@ Assume that there is such a scenario
 * In the new version of edge, a new API is added
 * The js code of the iframe is placed on the CDN, and it will be loaded and used by any version of edge
 
+![image](./docs/1745498251838.png)
+
 new API in the new version of edge
 ```ts
 proxy.registerMethod('zzz', handler.zzz.bind(handler));
@@ -96,7 +103,6 @@ this may be useful if you have 2 mojom handlers
 Suppose we have a mojom page callback router, it might be used like this
 ```ts
 import { MyPageCallbackRouter, MyMojomHandler } from '/xxxx.mojom-webui.js';
-import { MyMojomHandler } from '/xxxx.mojom-webui.js';
 
 const handler = MyMojomHandler.getRemote();
 const page = new MyPageCallbackRouter();
@@ -155,3 +161,13 @@ Or, give a duration to indicate how long it lasts.
 // the listener will automatically be removed after 5000ms
 events.xxx.on(() => { /* do something */ }, 5000);
 ```
+
+
+# Test coverage
+
+File       | % Stmts | % Branch | % Funcs | % Lines
+-----------|---------|----------|---------|--------
+All files  |     100 |    93.33 |     100 |     100
+ common.ts |     100 |      100 |     100 |     100
+ host.ts   |     100 |       96 |     100 |     100
+ iframe.ts |     100 |    90.32 |     100 |     100

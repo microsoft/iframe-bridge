@@ -38,7 +38,7 @@ export function linkHost<M extends MapMethod<M>, E extends MapFunc<E>>(
         win.parent.postMessage({ type: Bridge.CALL_METHOD, mid, method, args, scope }, origin);
         return new Promise<any>((resolve, reject) => {
           requests[mid] = { resolve, reject };
-          setTimeout(() => done(mid, undefined, 'timeout'), 5000);
+          setTimeout(() => done(mid, undefined, Bridge.TIME_OUT), 5000);
         });
       };
     }
@@ -65,9 +65,9 @@ export function linkHost<M extends MapMethod<M>, E extends MapFunc<E>>(
   const events = new Proxy({}, { get: eventGetter });
 
   // to judge if scope is match
-  const diffScope = scope ? ((s?: string) => (s !== scope)) : Boolean;
+  const diffScope = scope? ((s?: string) => (s !== scope)) : Boolean;
   win.addEventListener('message', ({ source, data = {} }) => {
-    if (!diffScope(data.scope)) return;
+    if (diffScope(data.scope)) return;
     if (!source || source !== win.parent) return;
     const { type, event = '', mid = '', res, err, args = [] } = data;
     switch (type) {
@@ -78,7 +78,7 @@ export function linkHost<M extends MapMethod<M>, E extends MapFunc<E>>(
     }
   });
 
-  methods[Bridge.ENUM_METHODS]().then(setMethods);
+  methods[Bridge.ENUM_METHODS]().then(setMethods).catch(() => {});
   events[Bridge.ENUM_METHODS].on(setMethods);
   return { methods, events };
 }
