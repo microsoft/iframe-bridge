@@ -9,9 +9,12 @@ Using postmessage directly to communicate with iframe, the code is very bad
 * Lack of compatible solutions
 * Code is scattered and unfocused
 
+For more details, please refer to **[bad postMessage](./docs//bad-post-message.md)**
+
 So here is an elegant solution:
 > Note: The implementation behind this solution still relies on post messages, but it encapsulates those bad codes and only exposes APIs that are highly readable, easy to use, and easy to maintain.
 
+For the architecture and principles behind it, please refer to **[architecture](./docs/architecture.md)**
 
 ## 1. Provide API to iframe
 Suppose we have a mojom handler, it might be used like this
@@ -54,19 +57,19 @@ methods.log('this is a test message');
 
 ### Compatibility Management
 Assume that there is such a scenario
-* In the new version of edge, a new API is added
-* The js code of the iframe is placed on the CDN, and it will be loaded and used by any version of edge
+* all versions of edge client load the the same js file from CDN
+* a new js file is deployed to the CDN with a new API call to the host
 
-![image](./docs/1745498251838.png)
+![image](./docs/1745895384329.png)
 
-new API in the new version of edge
+provide new API in the lastest version of edge client
 ```ts
 proxy.registerMethod('zzz', handler.zzz.bind(handler));
 ```
 
 then if the code in iframe `methods.zzz()` runs on an old version of edge, it may never get the expected results.
 
-Don't worry, the host will automatically send the available API list to the iframe, so when you access `methods.zzz` in the old version of edge, you will get undefined. Then, the code can be:
+Don't worry, the host will automatically send the available API list to the iframe, so when you access `methods.zzz` in the old version of edge, you will get `undefined`. Then, the code can be written like this:
 ```ts
 interface Methods {
   ······
@@ -74,6 +77,7 @@ interface Methods {
   zzz?: () => void
 }
 const { methods } = linkHost<Methods, any>('edge://underside_chat_v2');
+// better to judge whether the method is available before calling it
 methods.zzz?.();
 ```
 
@@ -144,8 +148,8 @@ events.yyy.on(console.log);
 events.test.on(console.log);
 ```
 
-### Group
-This part is the same as mentioned above, so, won’t go into details here.
+### Event Group
+This part is the same as what mentioned above, so, won’t go into details here.
 
 ### Remove listener
 For example, if it only needs to be executed once:
