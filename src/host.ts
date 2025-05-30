@@ -13,19 +13,14 @@ export function initProxy(opts: BridgeOptions = {}) {
 
   async function onCall(fn?: Function, args: any[] = []): Promise<[any?, string?]> {
     if (typeof fn !== 'function') return [, Bridge.NO_METHOD];
-    try {
-      let res = fn.apply(null, args);
-      if (res && typeof res.then === 'function') return [await res];
-      return [res];
-    } catch (err) {
-      console.error('bridge call method error', err);
-      return [, Bridge.CALL_METHOD_FAILED];
-    }
+    let res = fn.apply(null, args);
+    if (res && typeof res.then === 'function') return [await res];
+    return [res];
   }
 
   // to judge if scope is match
   const diffScope = scope ? ((s?: string) => (s !== scope)) : Boolean;
-  win.addEventListener('message', (event) => {
+  win.addEventListener('message', (event: any) => {
     const { source, data = {}, origin } = event;
     if (diffScope(data.scope)) return;
     if (!source || !origin) return;
@@ -34,7 +29,14 @@ export function initProxy(opts: BridgeOptions = {}) {
     const { type, mid, method, args } = data;
     if (type === Bridge.CALL_METHOD && mid) {
       onCall(methods[method], args)
-        .then(([res, err]) => frame.postMessage({ type: Bridge.RESPONSE, mid, res, err, scope }, origin));
+        .then(([res, err]) => {
+          if (__IS_DEV__ && err) console.error(`bridge call [${method}] fail`, err);
+          frame.postMessage({ type: Bridge.RESPONSE, mid, res, err, scope }, origin);
+        })
+        .catch((err) => {
+          console.error(`bridge call [${method}] error`, err);
+          frame.postMessage({ type: Bridge.RESPONSE, mid, err: Bridge.CALL_METHOD_FAILED, scope }, origin);
+        });
     }
   });
 

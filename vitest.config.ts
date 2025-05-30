@@ -16,4 +16,7 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
     },
   },
+  define: {
+    __IS_DEV__: process.env.NODE_ENV === 'development',
+  }
 });

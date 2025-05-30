@@ -74,4 +74,9 @@ export default defineConfig({
 			})
 		]
 	},
+	plugins: [
+		new rspack.DefinePlugin({
+			__IS_DEV__: JSON.stringify(process.env.NODE_ENV === "development")
+		})
+	],
 });

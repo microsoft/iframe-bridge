@@ -18,6 +18,7 @@ export function linkHost<M extends MapMethod<M>, E extends MapFunc<E>>(
   let exist_methods: Set<string | symbol> | undefined;
 
   function setMethods(list: any) {
+    if (__IS_DEV__) return;
     if (!Array.isArray(list) || list.length === 0) return;
     exist_methods = new Set(list);
   }
@@ -80,5 +81,6 @@ export function linkHost<M extends MapMethod<M>, E extends MapFunc<E>>(
 
   methods[Bridge.ENUM_METHODS]().then(setMethods).catch(() => {});
   events[Bridge.ENUM_METHODS].on(setMethods);
+  win.parent.postMessage({ type: '__activate__', scope }, origin);
   return { methods, events };
 }
